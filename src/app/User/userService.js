@@ -250,7 +250,7 @@ exports.verifyEmail = async function(userEmail, code){
                             <img src="https://anda-bucket.s3.ap-northeast-2.amazonaws.com/logo.png"> 
                         </div>
                         <div id="mainTitle" style="display: flex;justify-content: center;align-items: center;margin-top: 20px;font-family: 'Jua', sans-serif;font-size: 2em;">
-                            안다
+                                <img src = "https://anda-bucket.s3.ap-northeast-2.amazonaws.com/logo-text.png" height = "35">
                         </div>
                     </div>
             
