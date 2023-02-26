@@ -26,30 +26,54 @@ require("dotenv").config();
  * @returns 
  */
 exports.creteUser = async function (email, password, nickname, recommendUserId){
+    let hashedPassword, hasedEmail;
 
-    const isEmailDuplicated = await userProvider.emailDuplicateCheck(email);
     try{
-        if(isEmailDuplicated.result == '이미 가입된 이메일입니다.'){//이메일 중복이 있는 경우
-            return errResponse(baseResponse.SIGNUP_EMAIL_DUPLICATED);
-        }
+        // 비밀번호 암호화
+        hashedPassword = await crypto
+        .createHash("sha512", process.env.pwd_hasing_key)
+        .update(password)
+        .digest("hex");
 
-         // 비밀번호 암호화
-         const hashedPassword = await crypto
-         .createHash("sha512")
-         .update(password)
-         .digest("hex");
+        //이메일 해싱
+        hasedEmail = await crypto
+        .createHash("sha512", process.nickname_hashing_key)
+        .update(email)
+        .digest("hex");
 
-         const insertUserParams = [email, hashedPassword, nickname, recommendUserId];
-
-         const connection = await pool.getConnection(async (conn) => conn);
-         const userCreateResult = await userDao.insertUserInfo(connection, insertUserParams);
-        
-         connection.release();
-         return response(baseResponse.SUCCESS, {'email': email});
+        //추천인 아이디 해싱
+        let hashedRecommendUserId;
+        if(recommendUserId != 'nothing'){
+            hashedRecommendUserId = await crypto
+            .createHash("sha512", process.recommend_hashing_key)
+            .update(recommendUserId)
+            .digest("hex");
+        } 
+    } catch{
+        return errResponse(baseResponse.SIGNUP_PASSWORD_ENCRYPTION_ERROR);
     }
-    catch{
-        //logger.error(`App - createUser Service error\n: ${err.message}`);
+    const connection = await pool.getConnection(async (conn) => conn);
+    let userCreateResult = 0;
+    try{
+        const insertUserParams = [email, hashedPassword, nickname, hasedEmail.substring(0, 8)];
+        
+        connection.beginTransaction();
+        userCreateResult = await userDao.insertUserInfo(connection, insertUserParams);
+
+        connection.commit();
+        let is_success = userCreateResult;
+
+        let insert_res;
+        if(is_success == 1){
+            insert_res = 'success';
+        }else insert_res = 'fail';
+
+        return response(baseResponse.SUCCESS, {'insert result': insert_res});
+    } catch{
         return errResponse(baseResponse.DB_ERROR);
+    }
+    finally{
+        connection.release();
     }
     
 }
@@ -94,9 +118,11 @@ exports.signinUser = async function (email, password)
     try{
          // 비밀번호 암호화
          const hashedPassword = await crypto
-         .createHash("sha512")
+         .createHash("sha512", process.env.pwd_hasing_key)
          .update(password)
          .digest("hex");
+
+        
 
          const signinUserParams = [email, hashedPassword];
 
