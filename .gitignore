@@ -114,6 +114,11 @@ config/emailSecret.js
 
 .env
 .env.test
+.sql
+.RData
+.Rhistory
+*.R
+*.csv
 # Large Files
 OphthalmologyDATA.xlsx
 OphthalmologyDATA.csv
