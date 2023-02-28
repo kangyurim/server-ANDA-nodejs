@@ -122,13 +122,11 @@ exports.signinUser = async function (email, password)
          .update(password)
          .digest("hex");
 
-        
-
          const signinUserParams = [email, hashedPassword];
 
          const connection = await pool.getConnection(async (conn) => conn);
-         const userSignInResult = await userDao.signinUser(connection, signinUserParams); 
          
+        const userSignInResult = await userDao.signinUser(connection, signinUserParams);
          if(userSignInResult != null)
          {
              //토큰 생성 Service
@@ -172,7 +170,7 @@ exports.signinUser = async function (email, password)
         }
         else return errResponse(baseResponse.SIGNIN_FAILED);
     }
-    catch{
+    catch(err){
         logger.error(`App - signIn Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
