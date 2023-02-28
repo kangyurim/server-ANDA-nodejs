@@ -13,6 +13,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const {connect} = require("http2");
 const res = require("express/lib/response");
+const {integerCode} = require("./codeHasher");
 require("dotenv").config();
 
 /**
@@ -328,6 +329,7 @@ exports.findId = async function (phone, userType) {
     }
 }
 
+//비밀번호 업데이트
 exports.updatePassword = async function (userType, email, password) {
     try{
         const connection = await pool.getConnection(async (conn) => conn);
@@ -347,4 +349,17 @@ exports.updatePassword = async function (userType, email, password) {
         logger.error(`App - findId Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
+}
+
+exports.verifyEmailCode = async function (userEmail, code) {
+    try {
+        const rightCode = integerCode(userEmail);
+
+        if(rightCode == code) return response(baseResponse.EMAIL_CODE_MATCH);
+        if(rightCode != code) return response(baseResponse.EMAIL_CODE_NOT_MATCH);
+    } catch (err) {
+        logger.error(`App - verifyEmailCode Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+
 }

@@ -4,8 +4,11 @@ const userProvider = require("./userProvider");
 const {response, errResponse} = require("../../../config/response");
 const baseResponse = require("../../../config/baseResponseStatus");
 const baseResponseStatus = require("../../../config/baseResponseStatus");
+const {integerCode} = require("./codeHasher");
+var url = require('url');
 require("dotenv").config();
 
+let regex = new RegExp("([!#-'*+/-9=?A-Z^-~-]+(\.[!#-'*+/-9=?A-Z^-~-]+)*|\"\(\[\]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(\.[!#-'*+/-9=?A-Z^-~-]+)*|\[[\t -Z^-~]*])");
 
 /**
  * 1. 회원가입 API
@@ -104,7 +107,7 @@ exports.isDuplicateEmailUser = async function(req, res){
     email = req.query.email; 
     if(!email) return res.send(errResponse(baseResponse.SIGNIN_EMAIL_EMPTY));
 
-    const isDuplicateUserResponse = await userProvider.doctorEmailDuplicateCheck(email);
+    const isDuplicateUserResponse = await userProvider.doctorEmailDuplicateCheck(integerCode);
 
     return res.send(isDuplicateUserResponse);    
 }
@@ -149,14 +152,31 @@ exports.jwtCheck = async function(req, res){
  * @returns 
  */
 exports.verifyEmail = async function(req, res){
-    const {email, code} = req.body;
+    const {email} = req.body;
 
     if(!email) return res.send(baseResponse.SIGNUP_EMAIL_EMPTY);
-    if(!code) return res.send(baseResponse.SIGNUP_CODE_EMPTY);
 
-    const emailVerifyRes = await userService.verifyEmail(email, code);
+    const emailVerifyRes = await userService.verifyEmail(email, integerCode(email));
 
     return res.send(emailVerifyRes);
+}
+
+/**
+ * 이메일 코드 인증하기
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
+exports.verifyEmailCode = async function(req, res){
+    const {email, code} = req.query;
+
+    if(!email) return res.send(baseResponse.SIGNUP_EMAIL_EMPTY);
+    if(!code) return res.send(baseResponse.SIGNUP_EMAIL_CODE_EMPTY);
+    if(regex.test(email) == false) return res.send(baseResponse.SIGNUP_EMAIL_ERROR_TYPE);
+
+    const codeVerifyRes = await userService.verifyEmailCode(email, code);
+
+    return res.send(codeVerifyRes);
 }
 
 /**
