@@ -4,6 +4,7 @@ const userProvider = require("./userProvider");
 const {response, errResponse} = require("../../../config/response");
 const baseResponse = require("../../../config/baseResponseStatus");
 const baseResponseStatus = require("../../../config/baseResponseStatus");
+const {integerCode} = require("./codeHasher")
 require("dotenv").config();
 
 
@@ -104,7 +105,7 @@ exports.isDuplicateEmailUser = async function(req, res){
     email = req.query.email; 
     if(!email) return res.send(errResponse(baseResponse.SIGNIN_EMAIL_EMPTY));
 
-    const isDuplicateUserResponse = await userProvider.doctorEmailDuplicateCheck(email);
+    const isDuplicateUserResponse = await userProvider.doctorEmailDuplicateCheck(integerCode);
 
     return res.send(isDuplicateUserResponse);    
 }
@@ -149,12 +150,11 @@ exports.jwtCheck = async function(req, res){
  * @returns 
  */
 exports.verifyEmail = async function(req, res){
-    const {email, code} = req.body;
+    const {email} = req.body;
 
     if(!email) return res.send(baseResponse.SIGNUP_EMAIL_EMPTY);
-    if(!code) return res.send(baseResponse.SIGNUP_CODE_EMPTY);
 
-    const emailVerifyRes = await userService.verifyEmail(email, code);
+    const emailVerifyRes = await userService.verifyEmail(email, integerCode(email));
 
     return res.send(emailVerifyRes);
 }
