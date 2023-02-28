@@ -15,13 +15,15 @@ require("dotenv").config();
 exports.postUsers = async function (req, res) {
     const {email, password, nickname, recommendUserId} = req.body;
 
+    let recommendUser;
+
     if(!email)
         return res.send(response(baseResponse.SIGNUP_EMAIL_EMPTY));
     if(!password)
         return res.send(response(baseResponse.SIGNUP_PASSWORD_EMPTY));
     if(!nickname)
         return res.send(response(baseResponse.SIGNUP_NICKNAME_EMPTY));
-    if(!recommendUserId) recommendUserId = 'nothing'
+    if(!recommendUserId) recommendUser = 'nothing';
 
     const signupUserResponse = await userService.creteUser(
         email,

@@ -62,7 +62,8 @@ exports.creteUser = async function (email, password, nickname, recommendUserId){
 
         connection.commit();
         let is_success = userCreateResult;
-
+        console.log(is_success);
+        
         let insert_res;
         if(is_success == 1){
             insert_res = 'success';

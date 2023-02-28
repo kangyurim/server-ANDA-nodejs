@@ -21,6 +21,7 @@ module.exports = function () {
     require('../src/app/Location/locationRoute')(app);
     require('../src/app/Review/reviewRoute')(app);
     require('../src/app/Front/frontRoute')(app);
+    require('../src/app/Point/pointRoute')(app);
 
     return app;
 };
