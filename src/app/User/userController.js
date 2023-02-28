@@ -155,7 +155,8 @@ exports.verifyEmail = async function(req, res){
     const {email} = req.body;
 
     if(!email) return res.send(baseResponse.SIGNUP_EMAIL_EMPTY);
-
+    if(regex.test(email) == false) return res.send(baseResponse.SIGNUP_EMAIL_ERROR_TYPE);
+    
     const emailVerifyRes = await userService.verifyEmail(email, integerCode(email));
 
     return res.send(emailVerifyRes);
