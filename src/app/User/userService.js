@@ -43,7 +43,7 @@ exports.creteUser = async function (email, password, nickname, recommendUserId){
 
         //추천인 아이디 해싱
         let hashedRecommendUserId;
-        if(recommendUserId != 'nothing'){
+        if(recommendUserId != null){
             hashedRecommendUserId = await crypto
             .createHash("sha512", process.recommend_hashing_key)
             .update(recommendUserId)
