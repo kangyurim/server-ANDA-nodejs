@@ -12,7 +12,11 @@ module.exports = {
 
     SIGNUP_PHONE_EMPTY : { "isSuccess": false, "code": 2501, "message":"핸드폰 번호를 입력해주세요."},
     SIGNUP_HOSPITALNAME_EMPTY : { "isSuccess": false, "code": 2502, "message":"병원 이름을 입력해주세요."},
-
+    SIGNUP_EMAIL_CODE_EMPTY: {"isSuccess": false, "code": 2503, "message":"이메일 인증코드를 입력해주세요."},
+    SIGNUP_EMAIL_ERROR_TYPE: {"isSuccess": false, "code": 2504, "message":"이메일 형식이 올바르지 않습니다."},
+    EMAIL_CODE_MATCH: {"isSuccess": true, "code": 2505, "message":"이메일 인증이 완료되었습니다."},
+    EMAIL_CODE_NOT_MATCH: {"isSuccess": false, "code": 2506, "message":"이메일 인증코드가 일치하지 않습니다."},
+    
     SIGNUP_EMAIL_DUPLICATED : { "isSuccess": false, "code": 2005, "message":"이미 가입된 회원입니다."},
     SIGNUP_CODE_EMPTY : { "isSuccess": false, "code": 2006, "message":"인증코드를 입력해주세요."},
     BODY_EMPTY : { "isSuccess": false, "code": 2006, "message":"요청된 body가 없습니다."},
