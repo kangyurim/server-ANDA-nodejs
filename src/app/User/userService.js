@@ -306,7 +306,7 @@ exports.verifyEmail = async function(userEmail, code){
         const result = await transporter.sendMail(mailOptions);
         // transporter.close();
 
-    return response(baseResponse.SUCCESS, result);
+    return response(baseResponse.SUCCESS, result.accepted);
 }
 
 /**
@@ -351,6 +351,7 @@ exports.updatePassword = async function (userType, email, password) {
     }
 }
 
+//이메일 인증코드 확인
 exports.verifyEmailCode = async function (userEmail, code) {
     try {
         const rightCode = integerCode(userEmail);
