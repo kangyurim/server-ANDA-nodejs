@@ -34,7 +34,7 @@ async function selectUserNickname(connection, nickname){
 // 유저 생성
 async function insertUserInfo(connection, insertUserInfoParams) {
     const insertUserInfoQuery = `
-    insert into User(email, password, nickname, recommendUserId)
+    insert into User(email, password, nickname, recommendID)
     VALUES(?, ?, ?, ?);
       `;
     const insertUserInfoRow = await connection.query(
@@ -42,7 +42,7 @@ async function insertUserInfo(connection, insertUserInfoParams) {
       insertUserInfoParams
     );
   
-    return insertUserInfoRow;
+    return insertUserInfoRow[0].affectedRows;
 }
 
 //유저 로그인
@@ -62,7 +62,7 @@ async function signinUser(connection, signinUserParams){
 //[의사]유저 로그인
 async function signinDoctorUser(connection, signinUserParams){
   const signinUserQuery =`
-    SELECT id, createdAt, updatedAt, nickname, name, email, recommendUserId
+    SELECT id, createdAt, updatedAt, nickname, name, email, recommendID
     FROM DoctorUser
     WHERE email = ? AND password = ? AND status='Activated';;
   `

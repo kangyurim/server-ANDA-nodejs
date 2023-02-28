@@ -4,7 +4,7 @@ const userProvider = require("./userProvider");
 const {response, errResponse} = require("../../../config/response");
 const baseResponse = require("../../../config/baseResponseStatus");
 const baseResponseStatus = require("../../../config/baseResponseStatus");
-
+require("dotenv").config();
 
 
 /**
@@ -15,13 +15,15 @@ const baseResponseStatus = require("../../../config/baseResponseStatus");
 exports.postUsers = async function (req, res) {
     const {email, password, nickname, recommendUserId} = req.body;
 
+    let recommendUser;
+
     if(!email)
         return res.send(response(baseResponse.SIGNUP_EMAIL_EMPTY));
     if(!password)
         return res.send(response(baseResponse.SIGNUP_PASSWORD_EMPTY));
     if(!nickname)
         return res.send(response(baseResponse.SIGNUP_NICKNAME_EMPTY));
-    if(!recommendUserId) recommendUserId = 'null'
+    if(!recommendUserId) recommendUser = 'nothing';
 
     const signupUserResponse = await userService.creteUser(
         email,
