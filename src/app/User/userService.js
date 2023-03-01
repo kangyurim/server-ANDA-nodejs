@@ -160,6 +160,7 @@ exports.signinUser = async function (email, password) {
 
   const connection = await pool.getConnection(async (conn) => conn);
   try {
+    connection.beginTransaction();
     const userSignInResult = await userDao.signinUser(
       connection,
       signinUserParams
@@ -172,7 +173,7 @@ exports.signinUser = async function (email, password) {
           createAt: userSignInResult.createdAt,
           nickname: userSignInResult.nickname,
           email: userSignInResult.email,
-          recommendUserId: userSignInResult.recommendUserId,
+          recommendUserCode: userSignInResult.recommendUserId,
         }, // 토큰의 내용(payload)
         secret_config.ACCESSjwtsecret, // 비밀키
         {
@@ -187,7 +188,7 @@ exports.signinUser = async function (email, password) {
           createAt: userSignInResult.createdAt,
           nickName: userSignInResult.nickName,
           email: userSignInResult.email,
-          recommendUserId: userSignInResult.recommendUserId,
+          recommendUserCode: userSignInResult.recommendUserId,
         }, // 토큰의 내용(payload)
         secret_config.REFRESHjwtsecret, // 비밀키
         {
@@ -196,22 +197,25 @@ exports.signinUser = async function (email, password) {
         } // 유효 기간 2주
       );
 
-      const refreshTokenParams = [RefreshToken, email];
+      const refreshTokenParams = [email, RefreshToken];
       const refreshTokenSaveResult = await userDao.saveRefreshToken(
         connection,
         refreshTokenParams
       );
+      connection.commit();
 
-      connection.release();
       return response(baseResponse.SUCCESS, {
         email: email,
         AccessJWT: AccessToken,
         RefreshJWT: RefreshToken,
       });
     } else return errResponse(baseResponse.SIGNIN_FAILED);
-  } catch (err) {
+ } catch (err) {
     logger.error(`App - signIn Service error\n: ${err.message}`);
-    return errResponse(baseResponse.DB_ERROR);
+    return errResponse(baseResponse.TRANSACTION_ERROR);
+  }
+  finally{
+    connection.release();
   }
 };
 

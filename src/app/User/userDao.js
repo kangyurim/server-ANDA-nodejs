@@ -80,17 +80,14 @@ async function saveRefreshToken(connection, refreshTokenParams){
   const refreshTokenQuery = `
     insert into RefreshToken (email, refreshToken) VALUES (?, ?)
   `
-  
-  connection.query(
-    refreshTokenQuery,
-    refreshTokenParams,
-    function (err, result) {
-      if (err) throw err;
-      
-      console.log(`${result.affectedRows}개의 Refresh Token 추가됨.`);
-    });
 
-  return 1;
+  const saveRefreshTokenRes = await connection.query(
+    refreshTokenQuery,
+    refreshTokenParams
+  );
+
+  
+  return saveRefreshTokenRes[0].affectedRows;
 }
 
 //Refresh Token 업데이트
