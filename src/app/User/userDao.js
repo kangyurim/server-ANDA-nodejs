@@ -34,13 +34,14 @@ async function selectUserNickname(connection, nickname){
 // 유저 생성
 async function insertUserInfo(connection, insertUserInfoParams) {
     const insertUserInfoQuery = `
-    insert into User(email, password, nickname)
-    VALUES(?, ?, ?);
+        INSERT INTO User(email, password, nickname, recommendID, isOverAge, isTermsOfUseAgree, isPrivacyPolicyAgree, isMarketingInfoAgree)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?)
       `;
     const insertUserInfoRow = await connection.query(
       insertUserInfoQuery,
       insertUserInfoParams
     );
+
   
     return insertUserInfoRow[0].affectedRows;
 }
