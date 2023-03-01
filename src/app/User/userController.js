@@ -16,22 +16,46 @@ let regex = new RegExp("([!#-'*+/-9=?A-Z^-~-]+(\.[!#-'*+/-9=?A-Z^-~-]+)*|\"\(\[\
  * @param {json} res 
  */
 exports.postUsers = async function (req, res) {
-    const {email, password, nickname, recommendUserId} = req.body;
+    const {email, password, nickname, recommendUserId, isOverAge, isTermsOfUseAgree, isPrivacyPolicyAgree, isMarketingInfoAgree} = req.body;
 
     let recommendUser;
 
     if(!email)
         return res.send(response(baseResponse.SIGNUP_EMAIL_EMPTY));
+    if(regex.test(email) == false) 
+        return res.send(baseResponse.SIGNUP_EMAIL_ERROR_TYPE);
     if(!password)
         return res.send(response(baseResponse.SIGNUP_PASSWORD_EMPTY));
     if(!nickname)
         return res.send(response(baseResponse.SIGNUP_NICKNAME_EMPTY));
+    if(!isOverAge == null)
+        return res.send(response(baseResponse.SIGNUP_IS_OVER_AGE_EMPTY));
+    if(!isTermsOfUseAgree == null)
+        return res.send(response(baseResponse.SIGNUP_IS_TERMS_OF_USE_AGREE_EMPTY));
+    if(!isPrivacyPolicyAgree == null)
+        return res.send(response(baseResponse.SIGNUP_IS_PRIVACY_POLICY_AGREE_EMPTY));
+    if(isMarketingInfoAgree == null)
+        return res.send(response(baseResponse.SIGNUP_IS_MARKETING_INFO_AGREE_EMPTY));
+
+    if(typeof(isOverAge) != 'boolean')
+        return res.send(response(baseResponse.SIGNUP_IS_OVER_AGE_TYPE_ERROR));
+    if(typeof(isTermsOfUseAgree) != 'boolean')
+        return res.send(response(baseResponse.SIGNUP_IS_TERMS_OF_USE_AGREE_TYPE_ERROR));
+    if(typeof(isPrivacyPolicyAgree) != 'boolean')
+        return res.send(response(baseResponse.SIGNUP_IS_PRIVACY_POLICY_AGREE_TYPE_ERROR));
+    if(typeof(isMarketingInfoAgree) != 'boolean')
+        return res.send(response(baseResponse.SIGNUP_IS_MARKETING_INFO_AGREE_TYPE_ERROR));
+    
     if(!recommendUserId) recommendUser = 'nothing';
 
     const signupUserResponse = await userService.creteUser(
         email,
         password,
         nickname,
+        isOverAge,
+        isTermsOfUseAgree,
+        isPrivacyPolicyAgree,
+        isMarketingInfoAgree,
         recommendUserId
     )
 

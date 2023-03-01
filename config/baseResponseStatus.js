@@ -16,7 +16,15 @@ module.exports = {
     SIGNUP_EMAIL_ERROR_TYPE: {"isSuccess": false, "code": 2504, "message":"이메일 형식이 올바르지 않습니다."},
     EMAIL_CODE_MATCH: {"isSuccess": true, "code": 2505, "message":"이메일 인증이 완료되었습니다."},
     EMAIL_CODE_NOT_MATCH: {"isSuccess": false, "code": 2506, "message":"이메일 인증코드가 일치하지 않습니다."},
-    
+    SIGNUP_IS_OVER_AGE_EMPTY: {"isSuccess": false, "code": 2507, "message":"14세 이상 동의 여부를 입력해주세요(isOverAge: true/false)"},
+    SIGNUP_IS_TERMS_OF_USE_AGREE_EMPTY: {"isSuccess": false, "code": 2508, "message":"이용약관 동의 여부를 입력해주세요(isTermsOfUseAgree: true/false)"},
+    SIGNUP_IS_PRIVACY_POLICY_AGREE_EMPTY: {"isSuccess": false, "code": 2509, "message":"개인정보 수집 및 이용 동의 여부를 입력해주세요(isPrivacyPolicyAgree: true/false)"},
+    SIGNUP_IS_OVER_AGE_TYPE_ERROR: {"isSuccess": false, "code": 2510, "message":"14세 이상 동의 여부(isOverAge)는 boolean 타입입니다."},
+    SIGNUP_IS_TERMS_OF_USE_AGREE_TYPE_ERROR: {"isSuccess": false, "code": 2511, "message":"이용약관 동의 여부(isTermsOfUseAgree)는 boolean 타입입니다."},
+    SIGNUP_IS_PRIVACY_POLICY_AGREE_TYPE_ERROR: {"isSuccess": false, "code": 2512, "message":"개인정보 수집 및 이용 동의 여부(isPrivacyPolicyAgree)는 boolean 타입입니다."},
+    SIGNUP_IS_MARKETING_INFO_AGREE_EMPTY: {"isSuccess": false, "code": 2513, "message":"마케팅 정보 수신 동의 여부를 입력해주세요(isMarketingInfoAgree: true/false)"},
+    SIGNUP_IS_MARKETING_INFO_AGREE_TYPE_ERROR: {"isSuccess": false, "code": 2514, "message":"마케팅 정보 수신 동의 여부(isMarketingInfoAgree)는 boolean 타입입니다."},
+
     SIGNUP_EMAIL_DUPLICATED : { "isSuccess": false, "code": 2005, "message":"이미 가입된 회원입니다."},
     SIGNUP_CODE_EMPTY : { "isSuccess": false, "code": 2006, "message":"인증코드를 입력해주세요."},
     BODY_EMPTY : { "isSuccess": false, "code": 2006, "message":"요청된 body가 없습니다."},

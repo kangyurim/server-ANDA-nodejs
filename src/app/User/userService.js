@@ -26,7 +26,7 @@ require("dotenv").config();
  * @param {*} generation 
  * @returns 
  */
-exports.creteUser = async function (email, password, nickname, recommendUserId){
+exports.creteUser = async function (email, password, nickname, isOverAge, isTermsOfUseAgree, isPrivacyPolicyAgree, isMarketingInfoAgree, recommendUserId){
     let hashedPassword, hasedEmail;
 
     try{
@@ -56,7 +56,7 @@ exports.creteUser = async function (email, password, nickname, recommendUserId){
     const connection = await pool.getConnection(async (conn) => conn);
     let userCreateResult = 0;
     try{
-        const insertUserParams = [email, hashedPassword, nickname, hasedEmail.substring(0, 8)];
+        const insertUserParams = [email, hashedPassword, nickname, hasedEmail.substring(0, 8), isOverAge&1, isTermsOfUseAgree&1, isPrivacyPolicyAgree&1, isMarketingInfoAgree&1];
         
         connection.beginTransaction();
         userCreateResult = await userDao.insertUserInfo(connection, insertUserParams);
