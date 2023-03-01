@@ -73,6 +73,8 @@ exports.signinUser = async function (req, res){
 
     if(!email)
         return res.send(response.response(baseResponse.SIGNIN_EMAIL_EMPTY))
+    if(regex.test(email) == false) 
+        return res.send(baseResponse.SIGNUP_EMAIL_ERROR_TYPE);
     if(!password)
         return res.send(response.response(baseResponse.SIGNIN_PASSWORD_EMPTY))
 

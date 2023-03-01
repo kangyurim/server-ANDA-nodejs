@@ -1,263 +1,305 @@
-const {logger} = require("../../../config/winston");
-const {pool} = require("../../../config/database");
+const { logger } = require("../../../config/winston");
+const { pool } = require("../../../config/database");
 const secret_config = require("../../../config/secret");
 const baseResponse = require("../../../config/baseResponseStatus");
-const { transporter } = require('../../../config/emailSecret');
-const {response} = require("../../../config/response");
-const {errResponse} = require("../../../config/response");
+const { transporter } = require("../../../config/emailSecret");
+const { response } = require("../../../config/response");
+const { errResponse } = require("../../../config/response");
 
 const userDao = require("./userDao");
 const userProvider = require("./userProvider");
 
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const {connect} = require("http2");
+const { connect } = require("http2");
 const res = require("express/lib/response");
-const {integerCode} = require("./codeHasher");
+const { integerCode } = require("./codeHasher");
 require("dotenv").config();
 
 /**
  * 회원가입 API
- * @param {*} name 
- * @param {*} email 
- * @param {*} password 
+ * @param {*} name
+ * @param {*} email
+ * @param {*} password
  * @param {*} nickname
- * @param {*} member 
- * @param {*} generation 
- * @returns 
+ * @param {*} member
+ * @param {*} generation
+ * @returns
  */
-exports.creteUser = async function (email, password, nickname, isOverAge, isTermsOfUseAgree, isPrivacyPolicyAgree, isMarketingInfoAgree, recommendUserId){
-    let hashedPassword, hasedEmail;
+exports.creteUser = async function (
+  email,
+  password,
+  nickname,
+  isOverAge,
+  isTermsOfUseAgree,
+  isPrivacyPolicyAgree,
+  isMarketingInfoAgree,
+  recommendUserId
+) {
+  let hashedPassword, hasedEmail;
 
-    try{
-        // 비밀번호 암호화
-        hashedPassword = await crypto
-        .createHash("sha512", process.env.pwd_hasing_key)
-        .update(password)
+  try {
+    // 비밀번호 암호화
+    hashedPassword = await crypto
+      .createHash("sha512", process.env.pwd_hasing_key)
+      .update(password)
+      .digest("hex");
+
+    //이메일 해싱
+    hasedEmail = await crypto
+      .createHash("sha512", process.nickname_hashing_key)
+      .update(email)
+      .digest("hex");
+
+    //추천인 아이디 해싱
+    let hashedRecommendUserId;
+    if (recommendUserId != null) {
+      hashedRecommendUserId = await crypto
+        .createHash("sha512", process.recommend_hashing_key)
+        .update(recommendUserId)
         .digest("hex");
-
-        //이메일 해싱
-        hasedEmail = await crypto
-        .createHash("sha512", process.nickname_hashing_key)
-        .update(email)
-        .digest("hex");
-
-        //추천인 아이디 해싱
-        let hashedRecommendUserId;
-        if(recommendUserId != null){
-            hashedRecommendUserId = await crypto
-            .createHash("sha512", process.recommend_hashing_key)
-            .update(recommendUserId)
-            .digest("hex");
-        } 
-    } catch{
-        return errResponse(baseResponse.SIGNUP_PASSWORD_ENCRYPTION_ERROR);
     }
-    const connection = await pool.getConnection(async (conn) => conn);
-    let userCreateResult = 0;
-    try{
-        const insertUserParams = [email, hashedPassword, nickname, hasedEmail.substring(0, 8), isOverAge&1, isTermsOfUseAgree&1, isPrivacyPolicyAgree&1, isMarketingInfoAgree&1];
-        
-        connection.beginTransaction();
-        userCreateResult = await userDao.insertUserInfo(connection, insertUserParams);
+  } catch {
+    return errResponse(baseResponse.SIGNUP_PASSWORD_ENCRYPTION_ERROR);
+  }
+  const connection = await pool.getConnection(async (conn) => conn);
+  let userCreateResult = 0;
+  try {
+    const insertUserParams = [
+      email,
+      hashedPassword,
+      nickname,
+      hasedEmail.substring(0, 8),
+      isOverAge & 1,
+      isTermsOfUseAgree & 1,
+      isPrivacyPolicyAgree & 1,
+      isMarketingInfoAgree & 1,
+    ];
 
-        connection.commit();
-        let is_success = userCreateResult;
+    connection.beginTransaction();
+    userCreateResult = await userDao.insertUserInfo(
+      connection,
+      insertUserParams
+    );
 
-        let insert_res;
-        if(is_success == 1){
-            insert_res = 'success';
-        }else insert_res = 'fail';
+    connection.commit();
+    let is_success = userCreateResult;
 
-        return response(baseResponse.SUCCESS, {'insert result': insert_res});
-    } catch{
-        return errResponse(baseResponse.DB_ERROR);
-    }
-    finally{
-        connection.release();
-    }
-    
-}
+    let insert_res;
+    if (is_success == 1) {
+      insert_res = "success";
+    } else insert_res = "fail";
+
+    return response(baseResponse.SUCCESS, { "insert result": insert_res });
+  } catch {
+    return errResponse(baseResponse.DB_ERROR);
+  } finally {
+    connection.release();
+  }
+};
 /**
  * 의사 유저 생성 API
- * @param {*} nickname 
- * @param {*} email 
- * @param {*} password 
- * @param {*} phone 
- * @param {*} hospitalName 
- * @param {*} recommendUserId 
- * @returns 
+ * @param {*} nickname
+ * @param {*} email
+ * @param {*} password
+ * @param {*} phone
+ * @param {*} hospitalName
+ * @param {*} recommendUserId
+ * @returns
  */
-exports.creteDoctorUser = async function (nickname, email, password, phone, hospitalName, recommendUserId){
-    try{
-        //비밀번호 암호화
-        const hashedPassword = await crypto
-        .createHash("sha512")
-        .update(password)
-        .digest("hex");
-        
-        const InsertDocotUserParams = [nickname, email, hashedPassword, phone, hospitalName, recommendUserId];
-        const connection = await pool.getConnection(async (conn) => conn);
-        const doctorUserCreateResult = await userDao.insertDoctorUserInfo(connection, InsertDocotUserParams);
+exports.creteDoctorUser = async function (
+  nickname,
+  email,
+  password,
+  phone,
+  hospitalName,
+  recommendUserId
+) {
+  try {
+    //비밀번호 암호화
+    const hashedPassword = await crypto
+      .createHash("sha512")
+      .update(password)
+      .digest("hex");
 
-        connection.release();
-        return response(baseResponse.SUCCESS, {'email': email});
-    }
-    catch{
-        return errResponse(baseResponse.DB_ERROR);
-    }
-}
+    const InsertDocotUserParams = [
+      nickname,
+      email,
+      hashedPassword,
+      phone,
+      hospitalName,
+      recommendUserId,
+    ];
+    const connection = await pool.getConnection(async (conn) => conn);
+    const doctorUserCreateResult = await userDao.insertDoctorUserInfo(
+      connection,
+      InsertDocotUserParams
+    );
+
+    connection.release();
+    return response(baseResponse.SUCCESS, { email: email });
+  } catch {
+    return errResponse(baseResponse.DB_ERROR);
+  }
+};
 
 /**
  * 로그인 API
- * @param {*} email 
- * @param {*} password 
- * @returns 
+ * @param {*} email
+ * @param {*} password
+ * @returns
  */
-exports.signinUser = async function (email, password)
-{
-    try{
-         // 비밀번호 암호화
-         const hashedPassword = await crypto
-         .createHash("sha512", process.env.pwd_hasing_key)
-         .update(password)
-         .digest("hex");
+exports.signinUser = async function (email, password) {
+  // 비밀번호 암호화
+  const hashedPassword = await crypto
+    .createHash("sha512", process.env.pwd_hasing_key)
+    .update(password)
+    .digest("hex");
 
-         const signinUserParams = [email, hashedPassword];
+  const signinUserParams = [email, hashedPassword];
 
-         const connection = await pool.getConnection(async (conn) => conn);
-         
-        const userSignInResult = await userDao.signinUser(connection, signinUserParams);
-         if(userSignInResult != null)
-         {
-             //토큰 생성 Service
-            let AccessToken = await jwt.sign(
-                {
-                    id: userSignInResult.id,
-                    createAt: userSignInResult.createdAt,
-                    nickname: userSignInResult.nickname,
-                    email: userSignInResult.email,
-                    recommendUserId: userSignInResult.recommendUserId
-                }, // 토큰의 내용(payload)
-                secret_config.ACCESSjwtsecret, // 비밀키
-                {
-                    expiresIn: "3h",
-                    subject: "userInfo",
-                } // 유효 기간 3시간
-            );
+  const connection = await pool.getConnection(async (conn) => conn);
+  try {
+    const userSignInResult = await userDao.signinUser(
+      connection,
+      signinUserParams
+    );
+    if (userSignInResult != null) {
+      //토큰 생성 Service
+      let AccessToken = await jwt.sign(
+        {
+          id: userSignInResult.id,
+          createAt: userSignInResult.createdAt,
+          nickname: userSignInResult.nickname,
+          email: userSignInResult.email,
+          recommendUserId: userSignInResult.recommendUserId,
+        }, // 토큰의 내용(payload)
+        secret_config.ACCESSjwtsecret, // 비밀키
+        {
+          expiresIn: "3h",
+          subject: "userInfo",
+        } // 유효 기간 3시간
+      );
 
-            let RefreshToken = await jwt.sign(
-                {
-                    id: userSignInResult.id,
-                    createAt: userSignInResult.createdAt,
-                    nickName: userSignInResult.nickName,
-                    email: userSignInResult.email,
-                    recommendUserId: userSignInResult.recommendUserId
-                }, // 토큰의 내용(payload)
-                secret_config.REFRESHjwtsecret, // 비밀키
-                {
-                    expiresIn: "2w",
-                    subject: "userInfo",
-                } // 유효 기간 2주
-            );
+      let RefreshToken = await jwt.sign(
+        {
+          id: userSignInResult.id,
+          createAt: userSignInResult.createdAt,
+          nickName: userSignInResult.nickName,
+          email: userSignInResult.email,
+          recommendUserId: userSignInResult.recommendUserId,
+        }, // 토큰의 내용(payload)
+        secret_config.REFRESHjwtsecret, // 비밀키
+        {
+          expiresIn: "2w",
+          subject: "userInfo",
+        } // 유효 기간 2주
+      );
 
-            const refreshTokenParams = [RefreshToken, email]
-            const refreshTokenSaveResult = await userDao.updateRefreshToken(connection, refreshTokenParams)
+      const refreshTokenParams = [RefreshToken, email];
+      const refreshTokenSaveResult = await userDao.saveRefreshToken(
+        connection,
+        refreshTokenParams
+      );
 
-            connection.release();
-            return response(baseResponse.SUCCESS, {'email': email, 
-                                                   'AccessJWT': AccessToken,
-                                                    'RefreshJWT': RefreshToken});
-        }
-        else return errResponse(baseResponse.SIGNIN_FAILED);
-    }
-    catch(err){
-        logger.error(`App - signIn Service error\n: ${err.message}`);
-        return errResponse(baseResponse.DB_ERROR);
-    }
-}
+      connection.release();
+      return response(baseResponse.SUCCESS, {
+        email: email,
+        AccessJWT: AccessToken,
+        RefreshJWT: RefreshToken,
+      });
+    } else return errResponse(baseResponse.SIGNIN_FAILED);
+  } catch (err) {
+    logger.error(`App - signIn Service error\n: ${err.message}`);
+    return errResponse(baseResponse.DB_ERROR);
+  }
+};
 
 /**
  * 의사 로그인 API
- * @param {*} email 
- * @param {*} password 
- * @returns 
+ * @param {*} email
+ * @param {*} password
+ * @returns
  */
- exports.signinDoctorUser = async function (email, password)
- {
-     try{
-          // 비밀번호 암호화
-          const hashedPassword = await crypto
-          .createHash("sha512")
-          .update(password)
-          .digest("hex");
- 
-          const signinUserParams = [email, hashedPassword];
- 
-          const connection = await pool.getConnection(async (conn) => conn);
-          const userSignInResult = await userDao.signinDoctorUser(connection, signinUserParams); 
-          
-          if(userSignInResult != null)
-          {
-              //토큰 생성 Service
-             let AccessToken = await jwt.sign(
-                 {
-                     id: userSignInResult.id,
-                     createAt: userSignInResult.createdAt,
-                     nickname: userSignInResult.nickname,
-                     email: userSignInResult.email,
-                     recommendUserId: userSignInResult.recommendUserId
-                 }, // 토큰의 내용(payload)
-                 secret_config.ACCESSjwtsecret, // 비밀키
-                 {
-                     expiresIn: "3h",
-                     subject: "userInfo",
-                 } // 유효 기간 3시간
-             );
- 
-             let RefreshToken = await jwt.sign(
-                 {
-                     id: userSignInResult.id,
-                     createAt: userSignInResult.createdAt,
-                     nickName: userSignInResult.nickName,
-                     email: userSignInResult.email,
-                     recommendUserId: userSignInResult.recommendUserId
-                 }, // 토큰의 내용(payload)
-                 secret_config.REFRESHjwtsecret, // 비밀키
-                 {
-                     expiresIn: "2w",
-                     subject: "userInfo",
-                 } // 유효 기간 2주
-             );
- 
-             const refreshTokenParams = [RefreshToken, email]
-             const refreshTokenSaveResult = await userDao.updateRefreshToken(connection, refreshTokenParams)
- 
-             connection.release();
-             return response(baseResponse.SUCCESS, {'email': email, 
-                                                    'AccessJWT': AccessToken,
-                                                     'RefreshJWT': RefreshToken});
-         }
-         else return errResponse(baseResponse.SIGNIN_FAILED);
-     }
-     catch{
-         logger.error(`App - signIn Service error\n: ${err.message}`);
-         return errResponse(baseResponse.DB_ERROR);
-     }
- }
+exports.signinDoctorUser = async function (email, password) {
+  try {
+    // 비밀번호 암호화
+    const hashedPassword = await crypto
+      .createHash("sha512")
+      .update(password)
+      .digest("hex");
+
+    const signinUserParams = [email, hashedPassword];
+
+    const connection = await pool.getConnection(async (conn) => conn);
+    const userSignInResult = await userDao.signinDoctorUser(
+      connection,
+      signinUserParams
+    );
+
+    if (userSignInResult != null) {
+      //토큰 생성 Service
+      let AccessToken = await jwt.sign(
+        {
+          id: userSignInResult.id,
+          createAt: userSignInResult.createdAt,
+          nickname: userSignInResult.nickname,
+          email: userSignInResult.email,
+          recommendUserId: userSignInResult.recommendUserId,
+        }, // 토큰의 내용(payload)
+        secret_config.ACCESSjwtsecret, // 비밀키
+        {
+          expiresIn: "3h",
+          subject: "userInfo",
+        } // 유효 기간 3시간
+      );
+
+      let RefreshToken = await jwt.sign(
+        {
+          id: userSignInResult.id,
+          createAt: userSignInResult.createdAt,
+          nickName: userSignInResult.nickName,
+          email: userSignInResult.email,
+          recommendUserId: userSignInResult.recommendUserId,
+        }, // 토큰의 내용(payload)
+        secret_config.REFRESHjwtsecret, // 비밀키
+        {
+          expiresIn: "2w",
+          subject: "userInfo",
+        } // 유효 기간 2주
+      );
+
+      const refreshTokenParams = [RefreshToken, email];
+      const refreshTokenSaveResult = await userDao.updateRefreshToken(
+        connection,
+        refreshTokenParams
+      );
+
+      connection.release();
+      return response(baseResponse.SUCCESS, {
+        email: email,
+        AccessJWT: AccessToken,
+        RefreshJWT: RefreshToken,
+      });
+    } else return errResponse(baseResponse.SIGNIN_FAILED);
+  } catch {
+    logger.error(`App - signIn Service error\n: ${err.message}`);
+    return errResponse(baseResponse.DB_ERROR);
+  }
+};
 
 /**
  * 이메일 인증하기
- * @param {*} userEmail 
- * @returns 
+ * @param {*} userEmail
+ * @returns
  */
 
-exports.verifyEmail = async function(userEmail, code){
-        const mailOptions = {
-            from: `안다 <${process.env.GMAIL_ID}>`,
-            to: userEmail,
-            subject: "[안다] 이메일을 인증해주세요.",
-            html: `
+exports.verifyEmail = async function (userEmail, code) {
+  const mailOptions = {
+    from: `안다 <${process.env.GMAIL_ID}>`,
+    to: userEmail,
+    subject: "[안다] 이메일을 인증해주세요.",
+    html: `
             <!DOCTYPE html>
             <!DOCTYPE html>
             <html lang="en">
@@ -300,67 +342,70 @@ exports.verifyEmail = async function(userEmail, code){
             
             
             </html>
-            `
-        };
+            `,
+  };
 
-        const result = await transporter.sendMail(mailOptions);
-        // transporter.close();
+  const result = await transporter.sendMail(mailOptions);
+  // transporter.close();
 
-    return response(baseResponse.SUCCESS, result.accepted);
-}
+  return response(baseResponse.SUCCESS, result.accepted);
+};
 
 /**
  * 폰번호로 아이디 가져오기.
- * @param {*} phone 
- * @param {*} userType 
- * @returns 
+ * @param {*} phone
+ * @param {*} userType
+ * @returns
  */
 exports.findId = async function (phone, userType) {
-    try {
-        const connection = await pool.getConnection(async (conn) => conn);
-        const findIdResult = await userDao.findId(connection, phone, userType);
-        connection.release();
+  try {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const findIdResult = await userDao.findId(connection, phone, userType);
+    connection.release();
 
-        if(findIdResult.length > 0) return response(baseResponse.SUCCESS, findIdResult);
-        if(findIdResult.length == 0) return response(baseResponse.USER_ID_NOT_EXIST);
-    } catch (err) {
-        logger.error(`App - findId Service error\n: ${err.message}`);
-        return errResponse(baseResponse.DB_ERROR);
-    }
-}
+    if (findIdResult.length > 0)
+      return response(baseResponse.SUCCESS, findIdResult);
+    if (findIdResult.length == 0)
+      return response(baseResponse.USER_ID_NOT_EXIST);
+  } catch (err) {
+    logger.error(`App - findId Service error\n: ${err.message}`);
+    return errResponse(baseResponse.DB_ERROR);
+  }
+};
 
 //비밀번호 업데이트
 exports.updatePassword = async function (userType, email, password) {
-    try{
-        const connection = await pool.getConnection(async (conn) => conn);
-        // 비밀번호 암호화
-        const hashedPassword = await crypto
-        .createHash("sha512")
-        .update(password)
-        .digest("hex");
+  try {
+    const connection = await pool.getConnection(async (conn) => conn);
+    // 비밀번호 암호화
+    const hashedPassword = await crypto
+      .createHash("sha512")
+      .update(password)
+      .digest("hex");
 
-        const updatePasswordParams = [userType, email, hashedPassword];
-        const updatePasswordResult = await userDao.updatePassword(connection, updatePasswordParams);
-        connection.release();
+    const updatePasswordParams = [userType, email, hashedPassword];
+    const updatePasswordResult = await userDao.updatePassword(
+      connection,
+      updatePasswordParams
+    );
+    connection.release();
 
-        return response(baseResponse.SUCCESS);
-    }
-    catch{
-        logger.error(`App - findId Service error\n: ${err.message}`);
-        return errResponse(baseResponse.DB_ERROR);
-    }
-}
+    return response(baseResponse.SUCCESS);
+  } catch {
+    logger.error(`App - findId Service error\n: ${err.message}`);
+    return errResponse(baseResponse.DB_ERROR);
+  }
+};
 
 //이메일 인증코드 확인
 exports.verifyEmailCode = async function (userEmail, code) {
-    try {
-        const rightCode = integerCode(userEmail);
+  try {
+    const rightCode = integerCode(userEmail);
 
-        if(rightCode == code) return response(baseResponse.EMAIL_CODE_MATCH);
-        if(rightCode != code) return response(baseResponse.EMAIL_CODE_NOT_MATCH);
-    } catch (err) {
-        logger.error(`App - verifyEmailCode Service error\n: ${err.message}`);
-        return errResponse(baseResponse.DB_ERROR);
-    }
-
-}
+    if (rightCode == code) return response(baseResponse.EMAIL_CODE_MATCH);
+    if (rightCode != code) return response(baseResponse.EMAIL_CODE_NOT_MATCH);
+  } catch (err) {
+    logger.error(`App - verifyEmailCode Service error\n: ${err.message}`);
+    return errResponse(baseResponse.DB_ERROR);
+  }
+};
