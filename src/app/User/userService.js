@@ -203,7 +203,8 @@ exports.signinUser = async function (email, password) {
         refreshTokenParams
       );
       connection.commit();
-
+        
+      logger.info(`App - signIn Service\n: ${email} 로그인 성공`)
       return response(baseResponse.SUCCESS, {
         email: email,
         AccessJWT: AccessToken,
@@ -215,6 +216,7 @@ exports.signinUser = async function (email, password) {
     return errResponse(baseResponse.TRANSACTION_ERROR);
   }
   finally{
+    logger.info(`App - signIn Service\n: ${email} 로그인 시도`)
     connection.release();
   }
 };
