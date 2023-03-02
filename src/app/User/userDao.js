@@ -42,8 +42,9 @@ async function insertUserInfo(connection, insertUserInfoParams) {
       insertUserInfoParams
     );
 
-  
-    return insertUserInfoRow[0].affectedRows;
+    const getCreatedAt = await connection.query(`SELECT createdAt FROM User WHERE id = ?`, insertUserInfoRow[0].insertId);
+
+    return [insertUserInfoRow[0], getCreatedAt];
 }
 
 //유저 로그인
@@ -65,7 +66,7 @@ async function signinDoctorUser(connection, signinUserParams){
   const signinUserQuery =`
     SELECT id, createdAt, updatedAt, nickname, name, email, recommendID
     FROM DoctorUser
-    WHERE email = ? AND password = ? AND status='Activated';;
+    WHERE email = ? AND password = ? AND status='Activated';
   `
   const signinUserRow = await connection.query(
     signinUserQuery,
@@ -78,19 +79,15 @@ async function signinDoctorUser(connection, signinUserParams){
 //Refresh Token 저장
 async function saveRefreshToken(connection, refreshTokenParams){
   const refreshTokenQuery = `
-    insert into RefreshToken (email, refreshToken) VALUES (?, ?)
+    INSERT INTO RefreshToken (email, refreshToken) VALUES (?, ?)
   `
-  
-  connection.query(
-    refreshTokenQuery,
-    refreshTokenParams,
-    function (err, result) {
-      if (err) throw err;
-      
-      console.log(`${result.affectedRows}개의 Refresh Token 추가됨.`);
-    });
 
-  return 1;
+  const saveRefreshTokenRes = await connection.query(
+    refreshTokenQuery,
+    refreshTokenParams
+  );
+  
+  return saveRefreshTokenRes[0].affectedRows;
 }
 
 //Refresh Token 업데이트
@@ -102,11 +99,7 @@ async function updateRefreshToken(connection, refreshTokenParams){
   connection.query(
     refreshTokenQuery,
     refreshTokenParams,
-    function (err, result) {
-      if (err) throw err;
-      
-      console.log(`${result.affectedRows}개의 Refresh Token 추가됨.`);
-    });
+  )
 
   return 1;
 }
@@ -245,6 +238,29 @@ async function userRivewList(connection, userId) {
   return fianlUserReviewList;
 }
 
+//refreshToken으로 Access token 재발급
+async function checkRefreshToken(connection, email, token){
+  const updateAccessTokenQuery = `
+    SELECT COUNT(*) AS IS_EXIST
+    FROM RefreshToken
+    WHERE email = ? AND refreshToken = ?
+  `
+  const updateAccessTokenRow = await connection.query(updateAccessTokenQuery, [email, token]);
+
+  return updateAccessTokenRow[0];
+}
+
+async function findUserByRefreshToken(connection, refreshToken) {
+  const findUserByRefreshTokenQuery = `
+    SELECT U.id, U.createdAt, U.nickname, U.email, U.recommendID
+    FROM User U
+    INNER JOIN RefreshToken RT ON RT.email = U.email
+    WHERE RT.refreshToken = ?
+  `
+  const [userRows] = await connection.query(findUserByRefreshTokenQuery, refreshToken);
+  return userRows;
+}
+
 
 
 module.exports = {
@@ -259,5 +275,7 @@ module.exports = {
     signinDoctorUser,
     findId,
     updatePassword,
-    userRivewList
+    userRivewList,
+    checkRefreshToken,
+    findUserByRefreshToken
 }

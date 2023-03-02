@@ -16,6 +16,7 @@ module.exports = {
     SIGNUP_EMAIL_ERROR_TYPE: {"isSuccess": false, "code": 2504, "message":"이메일 형식이 올바르지 않습니다."},
     EMAIL_CODE_MATCH: {"isSuccess": true, "code": 2505, "message":"이메일 인증이 완료되었습니다."},
     EMAIL_CODE_NOT_MATCH: {"isSuccess": false, "code": 2506, "message":"이메일 인증코드가 일치하지 않습니다."},
+    
     SIGNUP_IS_OVER_AGE_EMPTY: {"isSuccess": false, "code": 2507, "message":"14세 이상 동의 여부를 입력해주세요(isOverAge: true/false)"},
     SIGNUP_IS_TERMS_OF_USE_AGREE_EMPTY: {"isSuccess": false, "code": 2508, "message":"이용약관 동의 여부를 입력해주세요(isTermsOfUseAgree: true/false)"},
     SIGNUP_IS_PRIVACY_POLICY_AGREE_EMPTY: {"isSuccess": false, "code": 2509, "message":"개인정보 수집 및 이용 동의 여부를 입력해주세요(isPrivacyPolicyAgree: true/false)"},
@@ -72,4 +73,5 @@ module.exports = {
      TOKEN_EMPTY : { "isSuccess": false, "code": 5101, "message":"토큰이 없습니다."},
      TOKEN_EMAIL_EMPTY: { "isSuccess": false, "code": 5102, "message":"이메일이 없습니다."},
      TOKEN_VERIFICATION_FAILURE: { "isSuccess": false, "code": 5103, "message":"토큰 해독 에러"},
+     TOKEN_NOT_EXIST: { "isSuccess": false, "code": 5104, "message":"일치하는 토큰이 존재하지 않습니다."},
 }
