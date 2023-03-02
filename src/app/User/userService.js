@@ -82,16 +82,35 @@ exports.creteUser = async function (
       insertUserParams
     );
 
+    let RefreshToken = await jwt.sign(
+      {
+        id: userCreateResult.insertId,
+        createAt: userCreateResult[1].createdAt,
+        nickName: userCreateResult.nickName,
+        email: userCreateResult.email,
+        recommendUserCode: userCreateResult.recommendUserId,
+      }, // 토큰의 내용(payload)
+      secret_config.REFRESHjwtsecret, // 비밀키
+      {
+        expiresIn: "2w",
+        subject: "userInfo",
+      } // 유효 기간 2주
+    );
+    const refreshTokenSaveResult = await userDao.saveRefreshToken(
+      connection, [email, RefreshToken]
+    )
     connection.commit();
-    let is_success = userCreateResult;
+    let is_success = userCreateResult[0].affectedRows;
 
     let insert_res;
     if (is_success == 1) {
       insert_res = "success";
     } else insert_res = "fail";
 
-    return response(baseResponse.SUCCESS, { "insert result": insert_res });
-  } catch {
+    return response(baseResponse.SUCCESS, { insert_res: insert_res, refreshToken: RefreshToken });
+  } catch(error) {
+    connection.rollback();
+    logger.error(`App - createUser Service error\n: ${error.message}`)
     return errResponse(baseResponse.DB_ERROR);
   } finally {
     connection.release();

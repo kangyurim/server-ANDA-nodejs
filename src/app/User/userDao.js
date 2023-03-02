@@ -42,8 +42,9 @@ async function insertUserInfo(connection, insertUserInfoParams) {
       insertUserInfoParams
     );
 
-  
-    return insertUserInfoRow[0].affectedRows;
+    const getCreatedAt = await connection.query(`SELECT createdAt FROM User WHERE id = ?`, insertUserInfoRow[0].insertId);
+
+    return [insertUserInfoRow[0], getCreatedAt];
 }
 
 //유저 로그인
@@ -65,7 +66,7 @@ async function signinDoctorUser(connection, signinUserParams){
   const signinUserQuery =`
     SELECT id, createdAt, updatedAt, nickname, name, email, recommendID
     FROM DoctorUser
-    WHERE email = ? AND password = ? AND status='Activated';;
+    WHERE email = ? AND password = ? AND status='Activated';
   `
   const signinUserRow = await connection.query(
     signinUserQuery,
@@ -78,14 +79,13 @@ async function signinDoctorUser(connection, signinUserParams){
 //Refresh Token 저장
 async function saveRefreshToken(connection, refreshTokenParams){
   const refreshTokenQuery = `
-    insert into RefreshToken (email, refreshToken) VALUES (?, ?)
+    INSERT INTO RefreshToken (email, refreshToken) VALUES (?, ?)
   `
 
   const saveRefreshTokenRes = await connection.query(
     refreshTokenQuery,
     refreshTokenParams
   );
-
   
   return saveRefreshTokenRes[0].affectedRows;
 }
