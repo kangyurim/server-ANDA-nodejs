@@ -77,6 +77,9 @@ exports.creteUser = async function (
     ];
 
     connection.beginTransaction();
+
+    logger.info(`App - createUser Service 회원가입 시도 (email : ${email})`)
+
     userCreateResult = await userDao.insertUserInfo(
       connection,
       insertUserParams
@@ -106,7 +109,7 @@ exports.creteUser = async function (
       }, // 토큰의 내용(payload)
       secret_config.REFRESHjwtsecret, // 비밀키
       {
-        expiresIn: "2w",
+        expiresIn: "14d",
         subject: "userInfo",
       } // 유효 기간 2주
     );
@@ -120,6 +123,8 @@ exports.creteUser = async function (
     if (is_success == 1) {
       insert_res = "success";
     } else insert_res = "fail";
+    
+    loggger.info(`App - createUser Service success\n: ${userCreateResult[0].affectedRows} row inserted!`);
 
     return response(baseResponse.SUCCESS, { insert_res: insert_res, accessToken: AccessToken , refreshToken: RefreshToken });
   } catch(error) {
@@ -130,6 +135,7 @@ exports.creteUser = async function (
     connection.release();
   }
 };
+
 /**
  * 의사 유저 생성 API
  * @param {*} nickname
@@ -194,6 +200,8 @@ exports.signinUser = async function (email, password) {
   const connection = await pool.getConnection(async (conn) => conn);
   try {
     connection.beginTransaction();
+    logger.info(`App - signinUser 로그인 시도. (email: ${email})`)
+    
     const userSignInResult = await userDao.signinUser(
       connection,
       signinUserParams
@@ -225,19 +233,19 @@ exports.signinUser = async function (email, password) {
         }, // 토큰의 내용(payload)
         secret_config.REFRESHjwtsecret, // 비밀키
         {
-          expiresIn: "2w",
+          expiresIn: "14d",
           subject: "userInfo",
         } // 유효 기간 2주
       );
 
-      const refreshTokenParams = [email, RefreshToken];
-      const refreshTokenSaveResult = await userDao.saveRefreshToken(
+      const refreshTokenParams = [RefreshToken, email];
+      const refreshTokenSaveResult = await userDao.updateRefreshToken(
         connection,
         refreshTokenParams
       );
       connection.commit();
         
-      logger.info(`App - signIn Service\n: ${email} 로그인 성공`)
+      logger.info(`App - signIn Service info email : ${email} 로그인 성공`)
       return response(baseResponse.SUCCESS, {
         email: email,
         AccessJWT: AccessToken,
@@ -245,11 +253,10 @@ exports.signinUser = async function (email, password) {
       });
     } else return errResponse(baseResponse.SIGNIN_FAILED);
  } catch (err) {
-    logger.error(`App - signIn Service error\n: ${err.message}`);
+    logger.error(`App - signIn Service error: ${err.message}`);
     return errResponse(baseResponse.TRANSACTION_ERROR);
   }
   finally{
-    logger.info(`App - signIn Service\n: ${email} 로그인 시도`)
     connection.release();
   }
 };
@@ -383,7 +390,7 @@ exports.verifyEmail = async function (userEmail, code) {
             </html>
             `,
   };
-
+  logger.info(`userService - Email: ${userEmail} 인증 메일 발송`);
   const result = await transporter.sendMail(mailOptions);
   // transporter.close();
 
@@ -428,7 +435,7 @@ exports.updatePassword = async function (userType, email, password) {
       updatePasswordParams
     );
     connection.release();
-
+    logger.info(`userService: email: ${email} 비밀번호 변경`)
     return response(baseResponse.SUCCESS);
   } catch {
     logger.error(`App - findId Service error\n: ${err.message}`);
@@ -441,8 +448,14 @@ exports.verifyEmailCode = async function (userEmail, code) {
   try {
     const rightCode = integerCode(userEmail);
 
-    if (rightCode == code) return response(baseResponse.EMAIL_CODE_MATCH);
-    if (rightCode != code) return response(baseResponse.EMAIL_CODE_NOT_MATCH);
+    if (rightCode == code){
+      logger.info(`userService: email: ${userEmail} 인증코드 일치`)
+      return response(baseResponse.EMAIL_CODE_MATCH);
+    } 
+    if (rightCode != code) {
+      logger.info(`userService: email: ${userEmail} 인증코드 불일치`)
+      return response(baseResponse.EMAIL_CODE_NOT_MATCH);
+    }
   } catch (err) {
     logger.error(`App - verifyEmailCode Service error\n: ${err.message}`);
     return errResponse(baseResponse.DB_ERROR);
