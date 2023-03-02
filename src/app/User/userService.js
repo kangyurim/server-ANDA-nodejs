@@ -81,6 +81,20 @@ exports.creteUser = async function (
       connection,
       insertUserParams
     );
+    let AccessToken = await jwt.sign(
+      {
+        id: userCreateResult.id,
+        createAt: userCreateResult[1].createdAt,
+        nickname: userCreateResult.nickname,
+        email: userCreateResult.email,
+        recommendUserCode: userCreateResult.recommendUserId,
+      }, // 토큰의 내용(payload)
+      secret_config.ACCESSjwtsecret, // 비밀키
+      {
+        expiresIn: "3h",
+        subject: "userInfo",
+      } // 유효 기간 3시간
+    );
 
     let RefreshToken = await jwt.sign(
       {
@@ -107,7 +121,7 @@ exports.creteUser = async function (
       insert_res = "success";
     } else insert_res = "fail";
 
-    return response(baseResponse.SUCCESS, { insert_res: insert_res, refreshToken: RefreshToken });
+    return response(baseResponse.SUCCESS, { insert_res: insert_res, accessToken: AccessToken , refreshToken: RefreshToken });
   } catch(error) {
     connection.rollback();
     logger.error(`App - createUser Service error\n: ${error.message}`)
