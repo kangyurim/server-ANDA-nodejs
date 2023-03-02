@@ -239,7 +239,7 @@ async function userRivewList(connection, userId) {
 }
 
 //refreshToken으로 Access token 재발급
-async function updateAccessToken(connection, email, token){
+async function checkRefreshToken(connection, email, token){
   const updateAccessTokenQuery = `
     SELECT COUNT(*) AS IS_EXIST
     FROM RefreshToken
@@ -276,6 +276,6 @@ module.exports = {
     findId,
     updatePassword,
     userRivewList,
-    updateAccessToken,
+    checkRefreshToken,
     findUserByRefreshToken
 }

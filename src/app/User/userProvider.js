@@ -78,17 +78,17 @@ exports.jwtCheck = async function (token){
     checkTokenResult.email = token.email;
     checkTokenResult.nickname = token.nickname;
 
-    
     return response(baseResponse.SUCCESS, checkTokenResult);
 }
 
+// refresh token으로 access, refresh token 재발급 하기
 exports.updateAccessToken = async function (email, token){
   let result = new Object();
   const connection = await pool.getConnection(async (conn) => conn);
   
   try{
     connection.beginTransaction();
-    const updateAccessTokenResult = await userDao.updateAccessToken(connection, email, token);
+    const updateAccessTokenResult = await userDao.checkRefreshToken(connection, email, token);
 
     if(updateAccessTokenResult[0].IS_EXIST == 1){
       const userSignInResult = await userDao.findUserByRefreshToken(connection, token);
@@ -122,7 +122,7 @@ exports.updateAccessToken = async function (email, token){
         } // 유효 기간 2주
       );
       
-      await userDao.updateRefreshToken(connection, [email, RefreshToken]);
+      const updateRefreshToken = await userDao.updateRefreshToken(connection, [RefreshToken, email]);
 
       result.accesToken = AccessToken;
       result.refreshToken = RefreshToken;
@@ -131,7 +131,8 @@ exports.updateAccessToken = async function (email, token){
       return response(baseResponse.SUCCESS, result);
     }
     else{
-      connection.commit();
+      connection.rollback();
+      logger.info(`App - updateAccessToken Service info\n: ${email} 유저 토큰 갱신 실패`);
       return response(baseResponse.TOKEN_NOT_EXIST);
     }
   } catch (err) {

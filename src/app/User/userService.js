@@ -124,7 +124,7 @@ exports.creteUser = async function (
       insert_res = "success";
     } else insert_res = "fail";
     
-    loggger.info(`App - createUser Service success\n: ${userCreateResult[0].affectedRows} row inserted!`);
+    logger.info(`App - createUser Service success\n: ${userCreateResult[0].affectedRows} row inserted!`);
 
     return response(baseResponse.SUCCESS, { insert_res: insert_res, accessToken: AccessToken , refreshToken: RefreshToken });
   } catch(error) {
