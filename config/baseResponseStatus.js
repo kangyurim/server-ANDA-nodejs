@@ -73,4 +73,5 @@ module.exports = {
      TOKEN_EMPTY : { "isSuccess": false, "code": 5101, "message":"토큰이 없습니다."},
      TOKEN_EMAIL_EMPTY: { "isSuccess": false, "code": 5102, "message":"이메일이 없습니다."},
      TOKEN_VERIFICATION_FAILURE: { "isSuccess": false, "code": 5103, "message":"토큰 해독 에러"},
+     TOKEN_NOT_EXIST: { "isSuccess": false, "code": 5104, "message":"일치하는 토큰이 존재하지 않습니다."},
 }

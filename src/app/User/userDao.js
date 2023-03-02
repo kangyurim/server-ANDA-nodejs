@@ -242,6 +242,29 @@ async function userRivewList(connection, userId) {
   return fianlUserReviewList;
 }
 
+//refreshToken으로 Access token 재발급
+async function updateAccessToken(connection, email, token){
+  const updateAccessTokenQuery = `
+    SELECT COUNT(*) AS IS_EXIST
+    FROM RefreshToken
+    WHERE email = ? AND refreshToken = ?
+  `
+  const updateAccessTokenRow = await connection.query(updateAccessTokenQuery, [email, token]);
+
+  return updateAccessTokenRow[0];
+}
+
+async function findUserByRefreshToken(connection, refreshToken) {
+  const findUserByRefreshTokenQuery = `
+    SELECT U.id, U.createdAt, U.nickname, U.email, U.recommendID
+    FROM User U
+    INNER JOIN RefreshToken RT ON RT.email = U.email
+    WHERE RT.refreshToken = ?
+  `
+  const [userRows] = await connection.query(findUserByRefreshTokenQuery, refreshToken);
+  return userRows;
+}
+
 
 
 module.exports = {
@@ -256,5 +279,7 @@ module.exports = {
     signinDoctorUser,
     findId,
     updatePassword,
-    userRivewList
+    userRivewList,
+    updateAccessToken,
+    findUserByRefreshToken
 }

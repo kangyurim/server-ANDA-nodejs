@@ -294,3 +294,16 @@ exports.getUserReviews = async function(req, res){
 
    return res.send(response(baseResponse.SUCCESS, userReviewListResult));
 }
+
+exports.updateAccessToken = async function(req, res){
+    const {email, refreshToken} = req.body;
+
+    if(!email) 
+        return res.send(baseResponse.SIGNUP_EMAIL_EMPTY);
+    if(!refreshToken)
+        return res.send(baseResponse.TOKEN_EMPTY);
+
+    const refreshTokenResponse = await userProvider.updateAccessToken(email, refreshToken);
+
+    return res.send(refreshTokenResponse);
+}
