@@ -261,6 +261,18 @@ async function findUserByRefreshToken(connection, refreshToken) {
   return userRows;
 }
 
+async function isExistRecommendCode(connection, recommendCode){
+  const checkRecommendCodeQuery = `
+    SELECT COUNT(*) isExist
+    FROM User
+    WHERE recommendId = ?
+  `
+  const checkRecommendCodeRow = await connection.query(checkRecommendCodeQuery, recommendCode);
+
+  return checkRecommendCodeRow[0][0].isExist;
+
+}
+
 
 
 module.exports = {
@@ -277,5 +289,6 @@ module.exports = {
     updatePassword,
     userRivewList,
     checkRefreshToken,
-    findUserByRefreshToken
+    findUserByRefreshToken,
+    isExistRecommendCode
 }

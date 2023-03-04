@@ -46,6 +46,10 @@ module.exports = {
     GUESTBOOK_WRITER_EMPTY : {"isSuccess": false, "code": 3001, "message":"닉네임을 입력해주세요."},
     GUESTBOOK_CONTENT_EMPTY : {"isSuccess": false, "code": 3001, "message":"방명록 내용을 입력해주세요."},
 
+    //POINT 관련 Error 코드
+    RECOMMEND_CODE_EMPTY : { "isSuccess": false, "code": 3101, "message":"추천인 코드를 입력해주세요."},
+    RECOMMEND_CODE_NOT_EXIST : { "isSuccess": false, "code": 3102, "message":"존재하지 않는 추천인 코드입니다."},
+    
     // Review -> 리뷰 관련 Error 코드
     //REVIEW_POSTIMGURLS_EMPTY
     REVIEW_CONTENT_LENGTH : { "isSuccess": false, "code": 4001, "message":"최소 20자 이상 작성해주세요." },
@@ -69,9 +73,9 @@ module.exports = {
     DB_ERROR : {"isSuccess": false, "code": 5001, "message":"DB관련 에러"},
     TRANSACTION_ERROR : {"isSuccess": false, "code": 5002, "message":"트랜젝션중 에러가 발생했습니다. 다시 요청해주세요."},
 
-     //TOEKN 관련 Error
-     TOKEN_EMPTY : { "isSuccess": false, "code": 5101, "message":"토큰이 없습니다."},
-     TOKEN_EMAIL_EMPTY: { "isSuccess": false, "code": 5102, "message":"이메일이 없습니다."},
-     TOKEN_VERIFICATION_FAILURE: { "isSuccess": false, "code": 5103, "message":"토큰 해독 에러"},
-     TOKEN_NOT_EXIST: { "isSuccess": false, "code": 5104, "message":"일치하는 토큰이 존재하지 않습니다."},
+    //TOEKN 관련 Error
+    TOKEN_EMPTY : { "isSuccess": false, "code": 5101, "message":"토큰이 없습니다."},
+    TOKEN_EMAIL_EMPTY: { "isSuccess": false, "code": 5102, "message":"이메일이 없습니다."},
+    TOKEN_VERIFICATION_FAILURE: { "isSuccess": false, "code": 5103, "message":"토큰 해독 에러"},
+    TOKEN_NOT_EXIST: { "isSuccess": false, "code": 5104, "message":"일치하는 토큰이 존재하지 않습니다."},
 }

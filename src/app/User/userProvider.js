@@ -78,6 +78,7 @@ exports.jwtCheck = async function (token){
     checkTokenResult.email = token.email;
     checkTokenResult.nickname = token.nickname;
 
+    logger.info("jwtCheck - 사용자 자동 로그인됨 : " + token.email);
     return response(baseResponse.SUCCESS, checkTokenResult);
 }
 
@@ -160,4 +161,20 @@ exports.userReviewList = async function(userId) {
       connection.release();
       return response;
   }
+}
+
+//추천인 코드 존재 확인
+exports.isExistRecommendCode = async function (recommendCode){
+  const connection = await pool.getConnection(async (conn) => conn);
+
+  try{
+    const isExistRecommendCodeResult = await userDao.isExistRecommendCode(connection, recommendCode);
+    connection.release();
+    if(isExistRecommendCodeResult[0].userCount == 0){
+    return response(baseResponse.SUCCESS, isExistRecommendCodeResult);
+  }} catch(err){
+    connection.release();
+    return errResponse(baseResponse.DB_ERROR);
+  }
+
 }

@@ -1,7 +1,8 @@
+const jwt = require('../../../config/jwtMiddleware');
+
 module.exports = function(app){
     const user = require('./userController');
-    const jwtMiddleware = require('../../../config/jwtMiddleware');
-    const jwtRefreshChecker = require('../../../config/jwtMiddleware');
+    
 
     // 0. 테스트 API
     // app.get('/app/test', user.getTest)
@@ -19,7 +20,7 @@ module.exports = function(app){
     app.get('/app/users/signup/verify/nickname', user.isDuplicateNicknameUser);
 
     // 5. JWT 검증
-    app.get('/app/users/auto-login', jwtMiddleware, user.jwtCheck);
+    app.get('/app/users/auto-login', jwt.jwtMiddleware, user.jwtCheck);
 
     // 6. 유저 이메일 인증
     app.post('/app/users/signup/verify/email/code', user.verifyEmail);
@@ -27,9 +28,12 @@ module.exports = function(app){
     // 7. 유저 이메일 인증 코드 확인
     app.get('/app/users/signup/verify/email/code', user.verifyEmailCode);
 
+    // 8. 추천인 코드 존재 확인
+    app.get('/app/users/signup/verify/recommend', user.isExistRecommendCode);
+
     //--------------
     // 1. Refresh Token으로 Access Token 재발급
-    app.post('/app/users/token/update', jwtRefreshChecker, user.updateAccessToken);
+    app.post('/app/users/token/update', jwt.jwtRefreshChecker, user.updateAccessToken);
 
     //--------------
     // 1 . 의사 회원가입
