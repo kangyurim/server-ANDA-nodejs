@@ -164,7 +164,7 @@ exports.isDuplicateNicknameUser = async function(req, res){
 exports.jwtCheck = async function(req, res){
     const accessToken = req.verifiedToken;
 
-    if(!accessToken) return res.send(response.response(baseResponse.EMPTY_TOKEN))
+    if(!accessToken) return res.send(baseResponse.TOKEN_EMPTY);
 
     const tokenVerifyRes = await userProvider.jwtCheck(accessToken);
     
@@ -295,6 +295,12 @@ exports.getUserReviews = async function(req, res){
    return res.send(response(baseResponse.SUCCESS, userReviewListResult));
 }
 
+/**
+ * Refresh token으로 Access token, Refresh token 재발급
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
 exports.updateAccessToken = async function(req, res){
     const {email, refreshToken} = req.body;
 
@@ -306,4 +312,15 @@ exports.updateAccessToken = async function(req, res){
     const refreshTokenResponse = await userProvider.updateAccessToken(email, refreshToken);
 
     return res.send(refreshTokenResponse);
+}
+
+//추천인 코드 존재 확인
+exports.isExistRecommendCode = async function(req, res){
+    const recommendCode = req.query.code;
+
+    if(!recommendCode) return res.send(baseResponse.RECOMMEND_CODE_EMPTY);
+
+    const checkCodeResponse = await userProvider.isExistRecommendCode(recommendCode);
+
+    return res.send(checkCodeResponse);
 }

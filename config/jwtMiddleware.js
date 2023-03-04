@@ -3,8 +3,8 @@ const secret_config = require('./secret');
 const { errResponse } = require("./response");
 const baseResponse = require("./baseResponseStatus");
 
-const jwtMiddleware = (req, res, next) => {
-    // read the token from header or url
+async function jwtMiddleware(req, res, next){
+    // read the token from header or url  
     const token = req.headers['x-access-token'] || req.query.token;
     // token does not exist
     if(!token) {
@@ -34,7 +34,7 @@ const jwtMiddleware = (req, res, next) => {
 };
 
 
-const jwtRefreshChecker = (req, res, next) => {
+async function jwtRefreshChecker(req, res, next){
     // read the token from header or url
     const token = req.body.refreshToken || req.query.refreshToken;
     // token does not exist
@@ -64,5 +64,5 @@ const jwtRefreshChecker = (req, res, next) => {
     }).catch(onError)
 };
 
-module.exports = jwtMiddleware;
-module.exports = jwtRefreshChecker;
+
+module.exports = {jwtRefreshChecker, jwtMiddleware};
