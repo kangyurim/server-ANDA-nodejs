@@ -13,6 +13,8 @@ const crypto = require("crypto");
 const {connect} = require("http2");
 const res = require("express/lib/response");
 
+const timeZone_options = { timeZone: 'Asia/Seoul' };
+
 exports.emailDuplicateCheck = async function (email) {
   const connection = await pool.getConnection(async (conn) => conn);
   const emailCheckResult = await userDao.selectUserEmail(connection, email);
@@ -70,10 +72,13 @@ exports.nicknameDuplicateCheck = async function (nickname){
 }
 
 exports.jwtCheck = async function (token){
-  let checkTokenResult = new Object();
+    let checkTokenResult = new Object();
     
+    const jwtExpireDate = new Date(token.exp * 1000); // multiply by 1000 to convert from seconds to milliseconds
+    const seoulExpireDate = jwtExpireDate.toLocaleString('en-US', timeZone_options); // convert the date to Seoul timezone
+
     checkTokenResult.result = "available";
-    checkTokenResult.exp = token.exp;
+    checkTokenResult.exp = seoulExpireDate;
     checkTokenResult.id = token.id;
     checkTokenResult.email = token.email;
     checkTokenResult.nickname = token.nickname;
