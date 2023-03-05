@@ -83,7 +83,7 @@ exports.jwtCheck = async function (token){
     checkTokenResult.email = token.email;
     checkTokenResult.nickname = token.nickname;
 
-    logger.info("jwtCheck - 사용자 자동 로그인됨 : " + token.email);
+    logger.info("jwtCheck - 사용자 토큰을 확인함 : " + token.email);
     return response(baseResponse.SUCCESS, checkTokenResult);
 }
 
@@ -98,13 +98,14 @@ exports.updateAccessToken = async function (email, token){
 
     if(updateAccessTokenResult[0].IS_EXIST == 1){
       const userSignInResult = await userDao.findUserByRefreshToken(connection, token);
+
       let AccessToken = await jwt.sign(
         {
-          id: userSignInResult.id,
-          createAt: userSignInResult.createdAt,
-          nickname: userSignInResult.nickname,
-          email: userSignInResult.email,
-          recommendUserCode: userSignInResult.recommendUserId,
+          id: userSignInResult[0].id,
+          createAt: userSignInResult[0].createdAt,
+          nickname: userSignInResult[0].nickname,
+          email: userSignInResult[0].email,
+          recommendUserCode: userSignInResult[0].recommendUserId,
         }, // 토큰의 내용(payload)
         secret_config.ACCESSjwtsecret, // 비밀키
         {
@@ -115,11 +116,11 @@ exports.updateAccessToken = async function (email, token){
 
       let RefreshToken = await jwt.sign(
         {
-          id: userSignInResult.id,
-          createAt: userSignInResult.createdAt,
-          nickName: userSignInResult.nickName,
-          email: userSignInResult.email,
-          recommendUserCode: userSignInResult.recommendUserId,
+          id: userSignInResult[0].id,
+          createAt: userSignInResult[0].createdAt,
+          nickName: userSignInResult[0].nickName,
+          email: userSignInResult[0].email,
+          recommendUserCode: userSignInResult[0].recommendUserId,
         }, // 토큰의 내용(payload)
         secret_config.REFRESHjwtsecret, // 비밀키
         {
