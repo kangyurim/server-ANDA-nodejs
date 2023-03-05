@@ -131,7 +131,7 @@ exports.updateAccessToken = async function (email, token){
       
       const updateRefreshToken = await userDao.updateRefreshToken(connection, [RefreshToken, email]);
 
-      result.accesToken = AccessToken;
+      result.accessToken = AccessToken;
       result.refreshToken = RefreshToken;
       connection.commit();
       logger.info(`App - updateAccessToken Service info\n: ${email} 유저 토큰 갱신 완료`)
