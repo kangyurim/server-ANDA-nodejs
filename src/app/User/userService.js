@@ -247,9 +247,8 @@ exports.signinUser = async function (email, password) {
         
       logger.info(`App - signIn Service info email : ${email} 로그인 성공`)
       return response(baseResponse.SUCCESS, {
-        email: email,
-        AccessJWT: AccessToken,
-        RefreshJWT: RefreshToken,
+        accesToken: AccessToken,
+        refreshToken: RefreshToken,
       });
     } else return errResponse(baseResponse.SIGNIN_FAILED);
  } catch (err) {
