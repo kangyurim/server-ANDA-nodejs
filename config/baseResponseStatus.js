@@ -49,6 +49,7 @@ module.exports = {
     //POINT 관련 Error 코드
     RECOMMEND_CODE_EMPTY : { "isSuccess": false, "code": 3101, "message":"추천인 코드를 입력해주세요."},
     RECOMMEND_CODE_NOT_EXIST : { "isSuccess": false, "code": 3102, "message":"존재하지 않는 추천인 코드입니다."},
+    RECOMMEND_CODE_LENGTH: { "isSuccess": false, "code": 3103, "message":"추천인 코드는 8자리입니다."},
     
     // Review -> 리뷰 관련 Error 코드
     //REVIEW_POSTIMGURLS_EMPTY
