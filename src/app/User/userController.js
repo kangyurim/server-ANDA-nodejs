@@ -302,10 +302,8 @@ exports.getUserReviews = async function(req, res){
  * @returns 
  */
 exports.updateAccessToken = async function(req, res){
-    const {email, refreshToken} = req.body;
-
-    if(!email) 
-        return res.send(baseResponse.SIGNUP_EMAIL_EMPTY);
+    const {refreshToken} = req.body;
+    const email = req.verifiedToken.email;
     if(!refreshToken)
         return res.send(baseResponse.TOKEN_EMPTY);
 
