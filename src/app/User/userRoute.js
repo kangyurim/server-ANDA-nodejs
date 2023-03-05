@@ -20,7 +20,7 @@ module.exports = function(app){
     app.get('/app/users/signup/verify/nickname', user.isDuplicateNicknameUser);
 
     // 5. JWT 검증
-    app.get('/app/users/auto-login', jwt.jwtMiddleware, user.jwtCheck);
+    app.get('/app/users/check-token', jwt.jwtMiddleware, user.jwtCheck);
 
     // 6. 유저 이메일 인증
     app.post('/app/users/signup/verify/email/code', user.verifyEmail);
