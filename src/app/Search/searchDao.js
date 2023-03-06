@@ -1,7 +1,7 @@
 
 async function searchHospital(connection, hospitalName){
     const searchQuery = `
-        SELECT id, name, townName, xCoordi, yCoordi
+        SELECT id, name, townName, address, xCoordi, yCoordi
         FROM Ophthalmology
         WHERE name LIKE '%${hospitalName}%' AND cityName = '서울'
     `
