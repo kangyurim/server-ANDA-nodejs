@@ -85,6 +85,6 @@ module.exports = {
     ADMIN_KEY_ERROR : { "isSuccess": false, "code": 5202, "message":"관리자 키가 일치하지 않습니다."},
 
     //찾기 관련 Error
-    SEARCH_HOSPITAL_EMPTY : { "isSuccess": false, "code": 5301, "message":"병원 명을 입력해주세요. (hospital = '병원명')"},
-    SEARCH_HOSPITAL_LENGTH : {"isSuccess": false, "code": 5302, "message":"query는 2자 이상 입력해주세요."},
+    SEARCH_HOSPITAL_EMPTY : { "isSuccess": false, "code": 5301, "message":"병원 명을 입력해주세요. (name = '병원명')"},
+    SEARCH_HOSPITAL_LENGTH : {"isSuccess": false, "code": 5302, "message":"query는 3자 이상 입력해주세요."},
 }
