@@ -119,7 +119,9 @@ config/emailSecret.js
 .Rhistory
 *.R
 *.csv
+
 codeHasher.js
+adminKeyCheck.js
 # Large Files
 OphthalmologyDATA.xlsx
 OphthalmologyDATA.csv
