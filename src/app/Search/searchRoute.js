@@ -7,5 +7,5 @@ const router = express.Router();
 module.exports = function (app){
 
     //1. 병원 명 검색
-    app.get('/search/hospital', adminKeyCheck.checkAdmin, controller.searchHospital);
+    app.get('/app/search/hospital', adminKeyCheck.checkAdmin, controller.searchHospital);
 }
