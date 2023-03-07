@@ -6,7 +6,13 @@ const pointService = require("./pointService");
 
 const baseResponse = require("../../../config/baseResponseStatus");
 
-exports.postPoint = async function(req, res){
+/**
+ * 친구추가 포인트 추가하기
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
+exports.postInvitePoint = async function(req, res){
     const code = req.body.code;
 
     if(!code) return res.send(response(baseResponse.RECOMMEND_CODE_EMPTY));
@@ -15,6 +21,15 @@ exports.postPoint = async function(req, res){
     const result = await pointService.postPoint(code);
 
     return res.send(result);
+}
+
+/**
+ * 포인트 내역 조회
+ * @param {*} req 
+ * @param {*} res 
+ */
+exports.getPointHistory = async function(req, res){
+    return res.send(temp); //임시
 }
 
 /**
