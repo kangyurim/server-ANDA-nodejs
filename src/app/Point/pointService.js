@@ -25,7 +25,7 @@ exports.postPoint = async function (code){
 
         pointCode = pointCode.substring(0, 20);
 
-        pointInsertResult = await dao.recommendPointInsert(connection, code);
+        pointInsertResult = await dao.recommendPointInsert(connection, pointCode);
         
         insertUserPoint = await dao.insertPointUser(connection, insertUserId, pointCode);
 
