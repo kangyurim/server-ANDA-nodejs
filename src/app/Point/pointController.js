@@ -6,6 +6,17 @@ const pointService = require("./pointService");
 
 const baseResponse = require("../../../config/baseResponseStatus");
 
+exports.postPoint = async function(req, res){
+    const code = req.body.code;
+
+    if(!code) return res.send(response(baseResponse.RECOMMEND_CODE_EMPTY));
+    if(code.length != 8) return res.send(response(baseResponse.RECOMMEND_CODE_LENGTH));
+
+    const result = await pointService.postPoint(code);
+
+    return res.send(result);
+}
+
 /**
  * 2. 추천인 조회 API
  * @param {*} req 

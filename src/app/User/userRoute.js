@@ -3,7 +3,6 @@ const jwt = require('../../../config/jwtMiddleware');
 module.exports = function(app){
     const user = require('./userController');
     
-
     // 0. 테스트 API
     // app.get('/app/test', user.getTest)
 

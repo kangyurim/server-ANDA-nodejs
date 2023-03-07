@@ -87,4 +87,8 @@ module.exports = {
     //찾기 관련 Error
     SEARCH_HOSPITAL_EMPTY : { "isSuccess": false, "code": 5301, "message":"병원 명을 입력해주세요. (name = '병원명')"},
     SEARCH_HOSPITAL_LENGTH : {"isSuccess": false, "code": 5302, "message":"query는 3자 이상 입력해주세요."},
+
+    //포인트 관련 Error
+    POINT_ENCRYPTION_ERROR: {"isSuccess": false, "code": 5401, "message":"포인트 암호화 에러"},
+    POINT_INSERT_ERROR: {"isSuccess": false, "code": 5402, "message":"추천인 아이디가 존재하지 않습니다."},
 }
