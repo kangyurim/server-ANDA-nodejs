@@ -41,9 +41,27 @@ async function insertPointUser(connection, userId, pointCode){
     return insertPointReq[0].affectedRows;
 }
 
+async function getPointHistory(connection, userId){
+    const getPointHistory = `
+        SELECT P.id AS ID, P.createdAt AS createdAt, P.amount, P.content, P.code, PU.userId,
+        (CASE WHEN P.used = 1 THEN '사용됨'
+            ELSE '사용 가능'
+            END) AS 'IsUsable'
+        FROM Point P
+        INNER JOIN PointUser PU ON P.code = PU.code
+        WHERE PU.userId = ?
+        ORDER BY createdAt ASC;
+    `
+
+    const [getPointHistoryRes] = await connection.query(getPointHistory, userId);
+
+    return getPointHistoryRes;
+}
+
 module.exports = {
     getRecommend,
     recommendPointInsert,
     findUserIdByCode,
-    insertPointUser
+    insertPointUser,
+    getPointHistory
 }

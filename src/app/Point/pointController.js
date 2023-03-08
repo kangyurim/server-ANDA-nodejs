@@ -48,3 +48,13 @@ exports.getRecommend = async function(req, res){
     
     return res.send(result);
 }
+
+exports.getPointHistory = async function(req, res){
+    verifiedToken = req.verifiedToken;
+
+    const userId = verifiedToken.id;
+
+    const result = await pointProvider.getPointHistory(userId);
+
+    return res.send(result);
+}

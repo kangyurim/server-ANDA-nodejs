@@ -91,4 +91,5 @@ module.exports = {
     //포인트 관련 Error
     POINT_ENCRYPTION_ERROR: {"isSuccess": false, "code": 5401, "message":"포인트 암호화 에러"},
     POINT_INSERT_ERROR: {"isSuccess": false, "code": 5402, "message":"추천인 아이디가 존재하지 않습니다."},
+    POINT_HISTORY_EMPTY: {"isSuccess": false, "code": 5403, "message":"포인트 내역이 존재하지 않습니다."},
 }

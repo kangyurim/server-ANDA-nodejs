@@ -29,3 +29,25 @@ exports.getRecommend = async function(code){
         connection.release();
     }
 }
+
+exports.getPointHistory = async function(userId){
+    const connection = await pool.getConnection(async (conn) => conn);
+
+    try{
+        const result = await pointDao.getPointHistory(connection, userId);
+
+        if(result.length > 0){
+            logger.info(`App - getPointHistory Service success. userId: ${userId}`);
+            return response(baseResponse.SUCCESS, result);
+        }
+        else{
+            logger.info(`App - getPointHistory Service failed. userId: ${userId}`);
+            return response(baseResponse.POINT_HISTORY_EMPTY);
+        }
+    }catch (err){
+        logger.error(`App - getPointHistory Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }finally {
+        connection.release();
+    }
+}
