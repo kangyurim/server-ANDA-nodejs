@@ -21,4 +21,11 @@ module.exports = function(app){
     //6. 리뷰 상세 보기
     app.post('/app/review/view/detail', review.getDetatilReview);
 
+    //7. 리뷰 수정 하기
+    //app.patch('/app/review/:reviewIdx', review.updateReview);
+
+    //8. 리뷰 삭제 하기
+    app.patch('/app/review/:reviewId/status', review.deleteReview);
+
+
 }

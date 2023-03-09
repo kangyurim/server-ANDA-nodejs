@@ -117,3 +117,64 @@ exports.postReview = async function(req, res){
     return res.send(response(baseResponse.SUCCESS, datailReviewRes));
 
  }
+
+  /**
+ * 리뷰 수정 API
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ 
+  exports.updateReview = async function(req, res){
+    const {hospitalId, reviewType, friendlyScore, waitScore, priceScore, infoScore, content, recommendScore, expenseAmount} = req.body;
+
+    const reviewId = req.params.reviewId;
+
+    if(!score) 
+        return res.send(response(baseResponse.REVIEW_SCORE_EMPTY));
+    const scoreToJson = JSON.parse(score);
+    if(typeof(scoreToJson) != 'object') 
+        return res.send(response(baseResponse.REVIEW_SCORE_TYPE_ERROR));
+
+    if(!reviewType)
+        return res.send(response(baseResponse.REVIEW_TYPE_EMPTY));
+    if(content.length < 20)
+        return res.send(response(baseResponse.REVIEW_CONTENT_LENGTH));
+    if(reviewType != 'normal' && reviewType != 'lasic' && reviewType != 'lasec' && reviewType != 'smile-lasic' && reviewType != 'lens-insert' && reviewType != 'cataract') 
+        return res.send(response(baseResponse.REVIEW_TYPE_INVALIED));
+    if(!expenseAmount)
+        return res.send(response(baseResponse.REVIEW_EXPENSEAMOUNT_EMPTY));
+    
+    const postReviewResponse = await reviewService.createReview(
+        req,
+        hospitalId,
+        reviewType,
+        scoreToJson,
+        content,
+        expenseAmount,
+        token
+    );
+*/
+
+  /**
+ * 리뷰 삭제 API
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
+  exports.deleteReview = async function(req, res){
+    console.log('??');
+
+    const reviewType = req.body.reviewType;
+    const reviewId = req.params.reviewId;
+
+    if(!reviewType)
+        return res.send(response(baseResponse.REVIEW_TYPE_EMPTY));
+    if(reviewType != 'normal' && reviewType != 'lasic' && reviewType != 'lasec' && reviewType != 'smile-lasic' && reviewType != 'lens-insert' && reviewType != 'cataract') 
+        return res.send(response(baseResponse.REVIEW_TYPE_INVALIED));
+    if(!reviewId)
+        return res.send(response(baseResponse.REVIEW_REVIEWID_EMPTY));
+
+    const deleteReviewResponse = await reviewService.deleteReview(reviewType, reviewId);
+
+    return res.send(deleteReviewResponse);
+}

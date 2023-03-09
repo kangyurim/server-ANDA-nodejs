@@ -499,6 +499,56 @@ function dynamicLocationWhereClause(location){
     return whereClause;
 }
 
+//리뷰 수정하기
+async function updateReview(connection, updateReviewParams){
+    const [hospitalId, reviewType, score, content, expenseAmount] = deleteReviewParams;
+    let queryReviewType;
+
+    if(reviewType == 'lasic') queryReviewType = 'Lasic';
+    if(reviewType == 'lasec') queryReviewType = 'Lasec';
+    if(reviewType == 'lens-insert') queryReviewType = 'LensInsert';
+    if(reviewType == 'smile-lasic') queryReviewType = 'SmileLasic';
+    if(reviewType == 'cataract') queryReviewType = 'Cataract';
+    if(reviewType == 'normal') queryReviewType = 'diagnosis';
+
+    let deleteReviewQuery = `
+      UPDATE ${queryReviewType}Review SET status = 'deleted', updatedAt=current_time
+      WHERE ${queryReviewType}Review.id = ?;
+      `
+
+    const deleteReviewQueryRow = await connection.query(
+        deleteReviewQuery,
+        reviewId
+    );
+    
+    return deleteReviewQueryRow;
+  }
+
+//리뷰 삭제하기
+async function deleteReview(connection, deleteReviewParams){
+    const [reviewType, reviewId] = deleteReviewParams;
+    let queryReviewType;
+
+    if(reviewType == 'lasic') queryReviewType = 'Lasic';
+    if(reviewType == 'lasec') queryReviewType = 'Lasec';
+    if(reviewType == 'lens-insert') queryReviewType = 'LensInsert';
+    if(reviewType == 'smile-lasic') queryReviewType = 'SmileLasic';
+    if(reviewType == 'cataract') queryReviewType = 'Cataract';
+    if(reviewType == 'normal') queryReviewType = 'diagnosis';
+
+    let deleteReviewQuery = `
+      UPDATE ${queryReviewType}Review SET status = 'deleted', updatedAt=current_time
+      WHERE ${queryReviewType}Review.id = ?;
+      `
+
+    const deleteReviewQueryRow = await connection.query(
+        deleteReviewQuery,
+        reviewId
+    );
+    
+    return deleteReviewQueryRow;
+  }
+
 module.exports = {
     retrieveReviewListSimple,
     getReviewArea,
@@ -507,6 +557,8 @@ module.exports = {
     retrieveTop9,
     createReview,
     getDetailReview,
-    getDetailImageReview
+    getDetailImageReview,
+    updateReview,
+    deleteReview
 }
 

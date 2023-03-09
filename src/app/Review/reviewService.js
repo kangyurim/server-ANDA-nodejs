@@ -22,7 +22,7 @@ exports.createReview = async function(req, hospitalId, reviewType, scoreToJson, 
         let categoryScore = new Object();
 
         let s3Urls = new Array()
-        for(var i in req.files)
+        for(var i in req.files) 
         {
             s3Urls.push(req.files[i].location)
         }
@@ -71,3 +71,23 @@ exports.createReview = async function(req, hospitalId, reviewType, scoreToJson, 
         return response(baseResponse.SUCCESS, { addedReview: reviewResult });
     }
 }
+
+//리뷰 삭제하기
+exports.deleteReview = async function (reviewType, reviewId) {
+  try {
+    const connection = await pool.getConnection(async (conn) => conn);
+  console.log('????');
+    const deleteReviewParams = [reviewType, reviewId];
+    const deleteReviewResult = await reviewDao.deleteReview(
+      connection,
+      deleteReviewParams
+    );
+    connection.release();
+    logger.info(`reviewService: review: ${reviewId} 리뷰 삭제`)
+    return response(baseResponse.SUCCESS);
+  } catch {
+    logger.error(`App - deleteReview Service error\n: ${err.message}`);
+    return errResponse(baseResponse.DB_ERROR);
+  }
+};
+  
